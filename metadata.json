@@ -1,0 +1,5 @@
+{
+  "name": "Emoji Flip Challenge",
+  "description": "A memory game where players find and match pairs of cards with the same emoji. Designed for two teams, this game is perfect for interactive smartboards, with a host managing the gameplay.",
+  "requestFramePermissions": []
+}
