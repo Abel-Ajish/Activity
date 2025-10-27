@@ -1,5 +1,5 @@
 import React from 'react';
-import { GameResult } from '../types';
+import { GameResult } from '../types.ts';
 
 interface GameHistoryModalProps {
   history: GameResult[];

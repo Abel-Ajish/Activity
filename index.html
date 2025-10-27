@@ -6,6 +6,7 @@
     <title>Emoji Flip Challenge</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <style>
       body {
         -webkit-font-smoothing: antialiased;
@@ -46,12 +47,25 @@
       .animate-shake {
         animation: shake 0.3s linear;
       }
-      @keyframes glow {
-        0%, 100% { box-shadow: 0 0 15px rgba(16, 185, 129, 0.5); }
-        50% { box-shadow: 0 0 25px rgba(16, 185, 129, 1); }
+      @keyframes match-success {
+        0% {
+          transform: scale(1) rotate(0deg);
+        }
+        30% {
+          transform: scale(1.25) rotate(-5deg);
+          box-shadow: 0 0 35px rgba(250, 204, 21, 0.8), 0 0 15px rgba(255, 255, 255, 0.6);
+        }
+        60% {
+          transform: scale(1.15) rotate(5deg);
+          box-shadow: 0 0 45px rgba(52, 211, 153, 1), 0 0 20px rgba(255, 255, 255, 0.8);
+        }
+        100% {
+          transform: scale(1) rotate(0deg);
+        }
       }
-      .animate-glow {
-        animation: glow 1.5s ease-in-out;
+      .animate-match-success {
+        animation: match-success 0.8s ease-in-out;
+        z-index: 10;
       }
     </style>
   <script type="importmap">
@@ -59,13 +73,15 @@
   "imports": {
     "react/": "https://aistudiocdn.com/react@^19.2.0/",
     "react": "https://aistudiocdn.com/react@^19.2.0",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/"
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react-dom": "https://aistudiocdn.com/react-dom@^19.2.0",
+    "react-dom/client": "https://aistudiocdn.com/react-dom@^19.2.0/client"
   }
 }
 </script>
 </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/index.tsx"></script>
+    <script type="text/babel" data-type="module" src="./index.tsx"></script>
   </body>
 </html>

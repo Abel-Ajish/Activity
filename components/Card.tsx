@@ -12,6 +12,20 @@ interface CardProps {
 }
 
 const Card: React.FC<CardProps> = ({ id, displayId, value, isFlipped, isMatched, isMismatched, onClick }) => {
+  const [isAnimatingMatch, setIsAnimatingMatch] = React.useState(false);
+  const prevIsMatched = React.useRef(isMatched);
+
+  React.useEffect(() => {
+    if (isMatched && !prevIsMatched.current) {
+      setIsAnimatingMatch(true);
+      const timer = setTimeout(() => {
+        setIsAnimatingMatch(false);
+      }, 800); // Animation duration
+      return () => clearTimeout(timer);
+    }
+    prevIsMatched.current = isMatched;
+  }, [isMatched]);
+  
   const handleClick = () => {
     if (!isFlipped && !isMatched) {
       onClick(id);
@@ -25,8 +39,9 @@ const Card: React.FC<CardProps> = ({ id, displayId, value, isFlipped, isMatched,
   };
 
   const cardClasses = [
-    'w-16 h-24 sm:w-20 sm:h-28 md:w-24 md:h-36 lg:w-32 lg:h-48 cursor-pointer rounded-lg',
+    'relative w-14 h-20 sm:w-16 sm:h-24 md:w-20 md:h-28 lg:w-24 lg:h-36 cursor-pointer rounded-lg',
     isMismatched ? 'animate-shake' : '',
+    isAnimatingMatch ? 'animate-match-success' : '',
   ].join(' ');
 
   return (
@@ -40,15 +55,15 @@ const Card: React.FC<CardProps> = ({ id, displayId, value, isFlipped, isMatched,
       >
         {/* Card Front (Hidden side) */}
         <div className="absolute w-full h-full flex items-center justify-center bg-cyan-600 rounded-lg shadow-md" style={{ backfaceVisibility: 'hidden' }}>
-          <span className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-slate-900 font-bold">{displayId}</span>
+          <span className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-slate-900 font-bold">{displayId}</span>
         </div>
         
         {/* Card Back (Visible side when flipped) */}
         <div 
-          className={`absolute w-full h-full flex items-center justify-center rounded-lg shadow-lg ${isMatched ? 'bg-emerald-500 animate-glow' : 'bg-slate-700'}`} 
+          className={`absolute w-full h-full flex items-center justify-center rounded-lg shadow-lg ${isMatched ? 'bg-emerald-500' : 'bg-slate-700'}`} 
           style={{ transform: 'rotateY(180deg)', backfaceVisibility: 'hidden' }}
         >
-          <span className={`text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold ${isMatched ? 'text-slate-900' : 'text-cyan-400'}`}>{value}</span>
+          <span className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold ${isMatched ? 'text-slate-900' : 'text-cyan-400'}`}>{value}</span>
         </div>
       </div>
     </div>

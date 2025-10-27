@@ -1,11 +1,10 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
-import { CardType, Player, GameResult } from './types';
-import Scoreboard from './components/Scoreboard';
-import GameBoard from './components/GameBoard';
-import GameOverModal from './components/GameOverModal';
-import HostControls from './components/HostControls';
-import GameHistoryModal from './components/GameHistoryModal';
+import { CardType, Player, GameResult } from './types.ts';
+import GameBoard from './components/GameBoard.tsx';
+import GameOverModal from './components/GameOverModal.tsx';
+import HostControls from './components/HostControls.tsx';
+import GameHistoryModal from './components/GameHistoryModal.tsx';
+import GameStatusHeader from './components/GameStatusHeader.tsx';
 
 type GameState = 'pre-game' | 'memorize' | 'playing' | 'game-over';
 
@@ -38,6 +37,7 @@ const App: React.FC = () => {
   const [isPaused, setIsPaused] = useState(false);
   const [gameHistory, setGameHistory] = useState<GameResult[]>([]);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [hostControlsVisible, setHostControlsVisible] = useState(false);
 
   // Load history from localStorage on initial render
   useEffect(() => {
@@ -72,6 +72,7 @@ const App: React.FC = () => {
     setTimeLeft(20);
     setShowAll(false);
     setIsPaused(false);
+    setHostControlsVisible(false);
     setGameState('pre-game');
   }, []);
 
@@ -204,37 +205,75 @@ const App: React.FC = () => {
     setGameHistory([]);
     setShowHistoryModal(false);
   };
+  
+  const hostControlProps = {
+    scores, currentPlayer, timeLeft, onFlipAllCards: handleFlipAllCards, onEndTurn: handleEndTurn,
+    onAwardPoint: handleAwardPoint, onDeductPoint: handleDeductPoint, onTogglePause: handleTogglePause,
+    onChangeTime: handleChangeTime, onResetTime: handleResetTime, onEndGame: endTheGame, onResetGame: resetGame,
+    showAll, isPaused, turnDuration,
+  };
+
+  const subtitleText = gameState === 'pre-game' 
+    ? 'Find matching pairs! You have 20 seconds per turn.' 
+    : gameState === 'memorize' ? 'Memorize the emojis!' : null;
 
   return (
-    <div className="bg-slate-900 text-white min-h-screen flex flex-col items-center justify-center p-4 font-sans">
-      <div className="w-full max-w-7xl mx-auto flex flex-col items-center text-center">
-        <header className="mb-4">
-          <h1 className="text-4xl md:text-6xl font-bold tracking-wider text-cyan-400">Emoji Flip Challenge</h1>
-          <p className="text-lg md:text-2xl text-slate-400 mt-2">
-            {gameState === 'pre-game' ? 'Click Start to begin the game.' : gameState === 'memorize' ? 'Memorize the emojis!' : `Find matching pairs! You have ${turnDuration} seconds per turn.`}
-          </p>
-        </header>
+    <div className="bg-slate-900 text-white h-screen flex flex-col items-center p-2 sm:p-4 font-sans overflow-hidden">
+      <div className="w-full max-w-7xl mx-auto flex flex-col items-center text-center h-full">
+        {gameState !== 'playing' && (
+          <header className="flex-shrink-0 mb-2">
+            <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold tracking-wider text-cyan-400">Emoji Flip Challenge</h1>
+            {subtitleText && (
+              <p className="text-base sm:text-lg md:text-2xl text-slate-400 mt-1 sm:mt-2">
+                {subtitleText}
+              </p>
+            )}
+          </header>
+        )}
+
+        {gameState === 'playing' && (
+            <GameStatusHeader 
+                scores={scores}
+                currentPlayer={currentPlayer}
+                timeLeft={timeLeft}
+                isPaused={isPaused}
+            />
+        )}
 
         {gameState === 'pre-game' ? (
-          <div className="mt-16 flex flex-col items-center gap-4">
+          <div className="flex-grow flex flex-col items-center justify-center gap-4">
             <button onClick={startGame} className="bg-cyan-500 hover:bg-cyan-600 text-slate-900 font-bold py-4 px-10 rounded-lg text-2xl md:text-3xl transition-transform transform hover:scale-105 animate-pulse">Start Game</button>
             <button onClick={handleShowHistory} className="bg-slate-700 hover:bg-slate-600 text-cyan-400 font-semibold py-2 px-6 rounded-lg text-lg transition-transform transform hover:scale-105">Game History</button>
           </div>
         ) : (
-          <>
-            <Scoreboard scores={scores} currentPlayer={currentPlayer} timeLeft={timeLeft} isPaused={isPaused} />
-            <main className="w-full flex-grow flex items-center justify-center my-4 animate-fadeIn">
+          <div className="flex flex-col flex-grow w-full justify-center min-h-0">
+            <main className="flex-grow flex items-center justify-center my-1 sm:my-2 min-h-0">
               <GameBoard cards={cards} onCardClick={handleCardClick} mismatchedCards={mismatchedCards} />
             </main>
-            {gameState === 'playing' && (
-              <HostControls onFlipAllCards={handleFlipAllCards} onEndTurn={handleEndTurn} onAwardPoint={handleAwardPoint} onDeductPoint={handleDeductPoint} onTogglePause={handleTogglePause} onChangeTime={handleChangeTime} onResetTime={handleResetTime} onEndGame={endTheGame} onResetGame={resetGame} showAll={showAll} isPaused={isPaused} turnDuration={turnDuration} />
-            )}
-          </>
+          </div>
         )}
       </div>
 
+      {gameState === 'playing' && hostControlsVisible && (
+        <div className="fixed bottom-0 left-0 right-0 p-2 sm:p-4 z-20 flex justify-center animate-fadeIn">
+          <HostControls {...hostControlProps} onClose={() => setHostControlsVisible(false)} />
+        </div>
+       )}
+
       {gameState === 'game-over' && <GameOverModal scores={scores} moves={moves} onPlayAgain={resetGame} />}
       {showHistoryModal && <GameHistoryModal history={gameHistory} onClear={handleClearHistory} onClose={() => setShowHistoryModal(false)} />}
+      <footer className="fixed bottom-2 right-4 text-xs text-slate-500 font-mono z-10 flex items-center gap-4">
+        {gameState === 'playing' && !hostControlsVisible && (
+            <button
+                onClick={() => setHostControlsVisible(true)}
+                className="bg-slate-700 hover:bg-slate-600 text-cyan-400 font-semibold py-1 px-3 rounded-lg text-sm transition-transform transform hover:scale-105 animate-pulse"
+                aria-label="Show host controls"
+            >
+                Controls
+            </button>
+        )}
+        <span>Made by Abel A</span>
+      </footer>
     </div>
   );
 };
