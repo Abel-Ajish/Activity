@@ -2,5 +2,8 @@
   "name": "emoji-flip-challenge",
   "version": "0.1.0",
   "private": true,
-  "description": "A memory game where players find and match pairs of cards with the same emoji. Designed for two teams, this game is perfect for interactive smartboards, with a host managing the gameplay."
+  "description": "A memory game where players find and match pairs of cards with the same emoji. Designed for two teams, this game is perfect for interactive smartboards, with a host managing the gameplay.",
+  "scripts": {
+    "build": "echo 'No build step required, using in-browser transpilation.'"
+  }
 }
