@@ -2,6 +2,7 @@
   "name": "emoji-flip-challenge",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://{your-github-username}.github.io/{your-repo-name}",
   "description": "A memory game where players find and match pairs of cards with the same emoji. Designed for two teams, this game is perfect for interactive smartboards, with a host managing the gameplay.",
   "scripts": {
     "build": "mkdir -p dist && cp -r components dist/ && cp index.html index.tsx App.tsx types.ts metadata.json dist/"
